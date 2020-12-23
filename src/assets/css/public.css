@@ -1,0 +1,10 @@
+.el-breadcrumb {
+  margin-left: 25px;
+  font-size: 16px;
+}
+.el-breadcrumb .el-breadcrumb__item > .el-breadcrumb__inner.is-link {
+  color: #84878c !important;
+}
+.el-breadcrumb .el-breadcrumb__item:last-child .el-breadcrumb__inner {
+  color: #2a58ad;
+}
