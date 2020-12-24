@@ -110,10 +110,8 @@ export default {
       this.choosed = index
       const { data: res } = await this.$http.post('api_hongren_list', this.HotListParams(this.loadList.categoryOnecId, this.loadList.categoryTwiceId))
       this.hotList = res.data
-      if (this.$route.fullPath === '/hottwoList') {
-        this.$router.push('/hotList')
-      } else if (this.$route.fullPath === '/hotVideo') {
-        this.$router.push('/hotList')
+      if (this.$route.fullPath !== '/hotoneList') {
+        this.$router.push('/hotoneList')
       }
       this.twiceTitle = item.title
     },
