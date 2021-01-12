@@ -17,7 +17,11 @@
     "vue": "^2.6.11",
     "vue-baidu-map": "^0.21.22",
     "vue-drag-verify": "^1.0.6",
+<<<<<<< HEAD
     "vue-router": "^3.2.0",
+=======
+    "vue-router": "^3.2.0"，
+>>>>>>> 20e62988a5074ac95af0704817c737ec3bad0383
     "vuex": "^3.6.0"
   },
   "devDependencies": {
