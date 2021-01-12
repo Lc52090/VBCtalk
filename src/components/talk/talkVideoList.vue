@@ -53,7 +53,15 @@
         </div>
       </li>
     </ul>
-    <p class="h-loading">加载更多</p>
+    <p
+      class="h-loading"
+      @click="load"
+      v-if="this.$store.state.isActive"
+    >加载更多</p>
+    <p
+      class="h-loading"
+      v-else
+    >没有更多了</p>
   </div>
 </template>
 
@@ -61,7 +69,7 @@
 import Qs from 'qs'
 import bus from '../../Bus.js'
 export default {
-  props: ['liveVideo', 'titleText'],
+  props: ['liveVideo', 'titleText', 'params'],
   data() {
     return {
       videoList: [],
@@ -73,6 +81,30 @@ export default {
     TotalkVideo(item, index) {
       console.log(item)
       this.$router.push({ path: '/talkVideo', query: { id: item.id } })
+    },
+    // 点击加载更多
+    async load() {
+      if (this.liveVideo.length < 12) {
+        this.$message.error('没有更多了')
+        this.$store.state.isActive = false
+        return
+      }
+      this.params.page++
+      const { data: res } = await this.$http.post('api_luntan_live_video_list', Qs.stringify(this.params))
+      console.log(res.data)
+      this.addliveVideo = res.data
+      if (this.addliveVideo.length) {
+        this.$emit('changeliveVideo', this.addliveVideo)
+        if (this.addliveVideo.length < 8) {
+          this.$message.error('已经到底了')
+          this.$store.state.isActive = false
+        } else {
+          this.page++
+        }
+      } else {
+        this.$message.error('已经到底了')
+        this.$store.state.isActive = false
+      }
     }
   }
 }
@@ -83,12 +115,14 @@ export default {
 .talk-video {
   display: flex;
   justify-content: space-around;
+  flex-wrap: wrap;
   li {
     cursor: pointer;
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
     border-radius: 5px;
+    margin-bottom: 15px;
     .talk-video-img {
       width: 290px;
       height: 155px;
