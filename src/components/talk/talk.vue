@@ -132,7 +132,7 @@ export default {
       const { data: res } = await this.$http.post('api_luntan_live_video_list', params)
       this.liveVideo = res.data
       // 点击跳转
-      if (this.$route.fullPath === '/talkVideo') {
+      if (this.$route.fullPath !== '/talkVideoList') {
         this.$router.push('/talkVideoList')
         const { data: res } = await this.$http.post('api_luntan_live_video_list', params)
         this.liveVideo = res.data

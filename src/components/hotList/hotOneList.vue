@@ -53,10 +53,16 @@
         </div>
       </li>
     </ul>
+
     <p
       class="h-loading"
       @click="load"
+      v-if="this.$store.state.isActive"
     >加载更多</p>
+    <p
+      class="h-loading"
+      v-else
+    >没有更多了</p>
   </div>
 </template>
 
@@ -64,36 +70,60 @@
 import Qs from 'qs'
 import bus from '../../Bus'
 export default {
-  props: ['hotList', 'loadList'],
+  props: {
+    hotList: {
+      type: Array,
+      default() {
+        return []
+      }
+    },
+    loadList: {
+      type: Object
+    }
+  },
   data() {
     return {
       id: null,
-      loading: true
+      addhotList: [],
+      page: 2
     }
   },
   methods: {
     // 获取红人分类菜单接口
-    HotListParams() {
+    HotListParams(page) {
       let data = Qs.stringify({
         category1_id: this.loadList.categoryOnecId,
         category2_id: this.loadList.categoryTwiceId,
-        limit: this.loadList.pageSize
+        limit: this.loadList.pageSize,
+        page: page
       })
       return data
     },
     // 点击加载更多
     async load() {
-      this.loadList.pageSize += 2
-      const { data: res } = await this.$http.post('api_hongren_list', this.HotListParams())
-      this.hotList = res.data
+      this.addhotList = []
+      const { data: res } = await this.$http.post('api_hongren_list', this.HotListParams(this.page))
+      this.addhotList = res.data
+      if (this.addhotList.length) {
+        this.$emit('changeHotList', this.addhotList)
+        if (this.addhotList.length < 8) {
+          this.$message.error('已经到底了')
+          this.$store.state.isActive = false
+        } else {
+          this.page++
+        }
+      } else {
+        this.$message.error('已经到底了')
+        this.$store.state.isActive = false
+      }
     },
     // 点击跳转并传递参数
     postArgId(item) {
       this.$router.push({ path: '/hottwoList', query: { id: item.id } })
-      this.$emit('itemClick', item.rank)
+      this.$store.state.rank = item.rank
+      sessionStorage.setItem('rank', item.rank)
     }
-  },
-  created() {}
+  }
 }
 </script>
 

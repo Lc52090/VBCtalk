@@ -47,13 +47,27 @@
           </div>
         </div>
       </div>
-      <div class="m-input">
-        <input
-          type="text"
-          placeholder="搜索视频"
-          v-model="query"
-        >
-        <button @click="searchPost()"></button>
+      <div class="input-wrap">
+        <div class="m-input">
+          <input
+            type="text"
+            placeholder="搜索视频"
+            @input="searchBox()"
+            v-model="query"
+          >
+          <button @click="searchPost()"></button>
+          <!-- 输出框输入内容匹配的标题 -->
+          <div
+            class="m-text"
+            v-if="isActive"
+          >
+            <div
+              v-for="(item,index) in queryinfo"
+              :key="index"
+              @click="handleChoose(item,index)"
+            >{{item.title}}</div>
+          </div>
+        </div>
       </div>
     </div>
     <!-- 鸣谢部分 -->
@@ -118,7 +132,13 @@ export default {
     return {
       onoff: true,
       mainList: [],
-      query: ''
+      // 搜索框value内容
+      query: '',
+      // 搜索块搜索的匹配内容
+      queryinfo: [],
+      // 搜索框点击内容的下标
+      index: null,
+      isActive: false
     }
   },
   created() {
@@ -132,19 +152,32 @@ export default {
         this.mainList = res.data
       })
     },
+    // 输入框输入事件
+    searchBox() {
+      // 防抖
+      setTimeout(async () => {
+        const { data: res } = await this.$http.post('api_search_video', Qs.stringify({ keyword: this.query }))
+        this.queryinfo = res.data
+        this.isActive = true
+      }, 1000)
+    },
+    // 输入框选中事件
+    handleChoose(item, index) {
+      this.index = index
+      this.query = item.title
+      this.isActive = false
+      this.$route.query.id = item.id
+    },
     // 搜索关键字
-    async searchPost() {
-      const { data: res } = await this.$http.post('api_search_video', Qs.stringify({ keyword: this.query }))
-      console.log(res)
-      if (!res.result) {
-        return this.$message.error('没有找到该视频')
+    searchPost() {
+      if (!this.queryinfo.length) {
+        this.$message.error('没有找到该内容')
+        return
       }
-      let queryinfo = res.data[0]
-      console.log(queryinfo.video_type === '1')
-      if (queryinfo.video_type === '1') {
-        this.$router.push({ path: '/talkVideo', query: { id: queryinfo.id } })
-      } else if (queryinfo.video_type === '2') {
-        this.$router.push({ path: '/hotVideo', query: { id: queryinfo.id } })
+      if (this.queryinfo[this.index].video_type === '1') {
+        this.$router.push({ path: '/talkVideo', query: { id: this.queryinfo[this.index].id } })
+      } else if (this.queryinfo[this.index].video_type === '2') {
+        this.$router.push({ path: '/hotVideo', query: { id: this.queryinfo[this.index].id } })
       }
     }
   }
@@ -154,7 +187,6 @@ export default {
 <style lang='less' scoped>
 .container {
   width: 100%;
-  overflow: hidden;
   margin-left: 13px;
   .main {
     display: flex;
@@ -202,34 +234,57 @@ export default {
       }
     }
   }
-  .m-input {
-    margin: auto;
-    width: 1112px;
-    height: 44px;
-    background-color: #fdfdfd;
-    border-radius: 3px;
-    border: solid 2px #2a58ad;
-    margin-top: 57px;
-    margin-left: 65px;
-    position: relative;
-    input {
-      width: 100%;
-      height: 100%;
-      padding-left: 15px;
-      display: block;
+  .input-wrap {
+    .m-input {
+      margin: auto;
+      width: 1112px;
+      height: 44px;
+      background-color: #fdfdfd;
+      border-radius: 3px;
+      border: solid 2px #2a58ad;
+      margin-top: 57px;
+      margin-left: 65px;
+      position: relative;
+      input {
+        width: 100%;
+        height: 100%;
+        padding-left: 15px;
+        display: block;
+      }
+      button {
+        outline: none;
+        border: none;
+        position: absolute;
+        background-color: #2a58ad;
+        background: url('../../assets/img/search.png') no-repeat;
+        background-position: center center;
+        width: 82px;
+        height: 41px;
+        background-color: #2a58ad;
+        right: -2px;
+        top: -1px;
+      }
     }
-    button {
-      outline: none;
-      border: none;
+    .m-text {
+      z-index: 99;
       position: absolute;
-      background-color: #2a58ad;
-      background: url('../../assets/img/search.png') no-repeat;
-      background-position: center center;
-      width: 82px;
-      height: 41px;
-      background-color: #2a58ad;
-      right: -2px;
-      top: -1px;
+      top: 44px;
+      left: 0;
+      background-color: #ffffff;
+      margin: auto;
+      width: 1112px;
+      font-size: 20px;
+      color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: space-around;
+      flex-direction: column;
+      div {
+        border-bottom: 2px solid #eee;
+        padding-left: 10px;
+        &:hover {
+          background-color: #eee;
+        }
+      }
     }
   }
 }

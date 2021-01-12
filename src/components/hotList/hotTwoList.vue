@@ -160,7 +160,8 @@ export default {
       spanText: ['代表作', '即将直播', '往期直播'],
       choosed: 0,
       // 根据spanText切换时的index显示图片数据,
-      hongren_live: []
+      hongren_live: [],
+      rank: null
     }
   },
   mounted() {

@@ -29,12 +29,12 @@
         </li>
       </ul>
       <div class="h-title">
-        <span>品牌 - {{twiceTitle}} 榜&nbsp;&nbsp;&nbsp;</span><span v-if="$route.fullPath !== '/hotoneList'">第{{rank}}名</span>
+        <span>品牌 - {{twiceTitle}} 榜&nbsp;&nbsp;&nbsp;</span><span v-if="$route.fullPath !== '/hotoneList'">第{{this.$store.state.rank||this.rank}}名</span>
       </div>
       <router-view
         :hotList="hotList"
         :loadList="loadList"
-        @itemClick="getItem"
+        @changeHotList='changeHotList'
       ></router-view>
     </div>
     <Footer></Footer>
@@ -61,10 +61,8 @@ export default {
       loadList: {
         categoryOnecId: 4,
         categoryTwiceId: 14,
-        pageSize: 8
+        limit: 8
       },
-      // 一级子元素传入的参数item
-      item: null,
       // 二级榜单title
       twiceTitle: null,
       rank: null
@@ -73,6 +71,7 @@ export default {
   created() {
     this.getCategoryList()
     this.getHotList()
+    this.rank = sessionStorage.getItem('rank')
   },
   methods: {
     // 获取红人分类菜单接口
@@ -106,20 +105,19 @@ export default {
     },
     // 二级分类,点击二级菜单获取红人分类菜单列表
     async chooseTwice(item, index) {
+      this.$store.state.isActive = true
       this.loadList.categoryTwiceId = item.id
       this.choosed = index
       const { data: res } = await this.$http.post('api_hongren_list', this.HotListParams(this.loadList.categoryOnecId, this.loadList.categoryTwiceId))
       this.hotList = res.data
-      if (this.$route.fullPath === '/hottwoList') {
-        this.$router.push('/hotList')
-      } else if (this.$route.fullPath === '/hotVideo') {
-        this.$router.push('/hotList')
+      if (this.$route.fullPath !== '/hotoneList') {
+        this.$router.push('/hotoneList')
       }
       this.twiceTitle = item.title
     },
-    // 获取item
-    getItem(data) {
-      this.rank = data
+    // 监听父组件传递给子组件的数据改变
+    changeHotList(data) {
+      this.hotList = [...this.hotList, ...data]
     }
   },
   components: {
