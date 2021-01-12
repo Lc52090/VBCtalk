@@ -46,6 +46,8 @@
       <router-view
         :liveVideo="liveVideo"
         :titleText="titleText"
+        :params="params"
+        @changeliveVideo='changeliveVideo'
       ></router-view>
     </div>
     <Footer></Footer>
@@ -54,7 +56,7 @@
 
 <script>
 import Footer from '../footer/footer'
-import Qs from 'qs'
+import Qs, { parse } from 'qs'
 export default {
   data() {
     return {
@@ -68,7 +70,9 @@ export default {
       liveVideoList: {
         category1_id: 2,
         category2_id: 1,
-        order: 1
+        order: 1,
+        page: 1,
+        limit: 12
       },
       // 传入子组件的值
       liveVideo: [],
@@ -76,7 +80,9 @@ export default {
         category1_title: '',
         category2_title: ''
       },
-      spanText: ['最新', '最火']
+      spanText: ['最新', '最火'],
+      // 请求video接口需要的数据
+      params: ''
     }
   },
   components: {
@@ -85,6 +91,7 @@ export default {
   created() {
     this.getCategoryList()
     this.getTalkvideo()
+    this.params = this.liveVideoList
   },
   methods: {
     getData(category1, category2, order) {
@@ -125,10 +132,12 @@ export default {
     },
     // 二级分类,点击二级菜单获取红人分类菜单列表
     async chooseTwice(item, index) {
+      this.$store.state.isActive = true
       this.choosed = index
       this.liveVideoList.category2_id = item.id
       this.titleText.category2_title = item.title
       let params = this.getData(2, item.id, this.liveVideoList.order)
+      this.params = params
       const { data: res } = await this.$http.post('api_luntan_live_video_list', params)
       this.liveVideo = res.data
       // 点击跳转
@@ -137,6 +146,10 @@ export default {
         const { data: res } = await this.$http.post('api_luntan_live_video_list', params)
         this.liveVideo = res.data
       }
+    },
+    // 动态改变父组件传入到子组件的值
+    changeliveVideo(data) {
+      this.liveVideo = [...this.liveVideo, ...data]
     },
     // 最新最热切换
     async changeColor(item, index) {
