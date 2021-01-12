@@ -9,6 +9,7 @@ import './assets/css/public.css'
 import BaiduMap from 'vue-baidu-map'
 import nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
+import store from './store'
 
 Vue.use(BaiduMap, {
   ak: 'OZYyQnxcgfouNuBl2ZFP0Nx6HGT46OAo'
@@ -31,5 +32,6 @@ Vue.config.productionTip = false
 
 new Vue({
   router,
+  store，
   render: h => h(App)
 }).$mount('#app')
