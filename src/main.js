@@ -10,7 +10,6 @@ import BaiduMap from 'vue-baidu-map'
 import nprogress from 'nprogress'
 import store from './store'
 import 'nprogress/nprogress.css'
-import store from './store'
 
 Vue.use(BaiduMap, {
   ak: 'OZYyQnxcgfouNuBl2ZFP0Nx6HGT46OAo'
